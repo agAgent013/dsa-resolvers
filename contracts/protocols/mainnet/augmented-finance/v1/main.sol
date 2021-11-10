@@ -15,14 +15,14 @@ contract Resolver is Helpers {
         view
         returns (UserTokenData[] memory, UserData memory)
     {
-        IMarketAccessController mac = IMarketAccessController(getMarketAccessController());
-        IProtocolDataProvider dataProvider = IProtocolDataProvider(getProtocolDataProviderAddress());
+        IMarketAccessController mac = IMarketAccessController(MARKET_ACCESS_CONTROLLER_ADDRESS);
+        IProtocolDataProvider dataProvider = IProtocolDataProvider(PROTOCOL_DATA_PROVIDER_ADDRESS);
         ILendingPool pool = ILendingPool(mac.getLendingPool());
         uint256 size = tokens.length;
         address[] memory addresses = new address[](size);
 
         for (uint256 index = 0; index < size; index += 1) {
-            addresses[index] = tokens[index] == getEthereumAddress() ? getWethAddress() : tokens[index];
+            addresses[index] = tokens[index] == ETHEREUM_ADDRESS ? WETH_ADDRESS : tokens[index];
         }
 
         UserTokenData[] memory tokensData = new UserTokenData[](size);

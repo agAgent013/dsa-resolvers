@@ -8,37 +8,27 @@ contract Helpers is DSMath {
     /**
      * @dev Return ethereum address
      */
-    function getEthereumAddress() internal pure returns (address) {
-        return 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    }
+    address internal constant ETHEREUM_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     /**
-     * Return Weth address
+     * @dev Return Weth address
      */
-    function getWethAddress() internal pure returns (address) {
-        return 0x3B0B4787A01591DAf1bAc616465167e9f7DCD18e;
-    }
+    address internal constant WETH_ADDRESS = 0x3B0B4787A01591DAf1bAc616465167e9f7DCD18e;
 
     /**
      * @dev Get Market Access Controller address
      */
-    function getMarketAccessController() internal pure returns (address) {
-        return 0xc6f769A0c46cFFa57d91E87ED3Bc0cd338Ce6361;
-    }
+    address internal constant MARKET_ACCESS_CONTROLLER_ADDRESS = 0xc6f769A0c46cFFa57d91E87ED3Bc0cd338Ce6361;
 
     /**
      * @dev Get Procolol Data Provider address
      */
-    function getProtocolDataProviderAddress() internal pure returns (address) {
-        return 0xd25C4a0b0c088DC8d501e4292cF28da6829023c0;
-    }
+    address internal constant PROTOCOL_DATA_PROVIDER_ADDRESS = 0xd25C4a0b0c088DC8d501e4292cF28da6829023c0;
 
     /**
      * @dev Get Chainlink ETH price feed address
      */
-    function getChainlinkEthFeedAddress() internal pure returns (address) {
-        return 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
-    }
+    address internal constant CHAINLINK_ETH_FEED_ADDRESS = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
 
     struct UserTokenData {
         uint256 priceInETH;
@@ -73,7 +63,7 @@ contract Helpers is DSMath {
         uint256 totalCollateralETH;
         uint256 totalBorrowsETH;
         uint256 availableBorrowsETH;
-        uint256 currentLiquidatonThreshold;
+        uint256 currentLiquidationThreshold;
         uint256 ltv;
         uint256 healthFactor;
         uint256 ethPriceInUsd;
@@ -97,7 +87,7 @@ contract Helpers is DSMath {
     {
         uint256[] memory prices = IPriceOracle(mac.getPriceOracle()).getAssetsPrices(tokens);
 
-        ethPrice = uint256(IChainlink(getChainlinkEthFeedAddress()).latestAnswer());
+        ethPrice = uint256(IChainlink(CHAINLINK_ETH_FEED_ADDRESS).latestAnswer());
         tokenPrices = new TokenPrice[](prices.length);
 
         for (uint256 index = 0; index < prices.length; index += 1) {
@@ -193,24 +183,16 @@ contract Helpers is DSMath {
         uint256 ethPriceInUsd
     ) internal view returns (UserData memory userData) {
         (
-            uint256 totalCollateralETH,
-            uint256 totalDebtETH,
-            uint256 availableBorrowsETH,
-            uint256 currentLiquidationThreshold,
-            uint256 ltv,
-            uint256 healthFactor
+            userData.totalCollateralETH,
+            userData.totalBorrowsETH,
+            userData.availableBorrowsETH,
+            userData.currentLiquidationThreshold,
+            userData.ltv,
+            userData.healthFactor
         ) = pool.getUserAccountData(user);
         (RewardExplained memory rewardData, ) = dataProvider.explainReward(user, 1);
 
-        userData = UserData(
-            totalCollateralETH,
-            totalDebtETH,
-            availableBorrowsETH,
-            currentLiquidationThreshold,
-            ltv,
-            healthFactor,
-            ethPriceInUsd,
-            rewardData.amountClaimable
-        );
+        userData.claimableRewards = rewardData.amountClaimable;
+        userData.ethPriceInUsd = ethPriceInUsd;
     }
 }
